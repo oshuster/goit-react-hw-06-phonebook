@@ -1,27 +1,55 @@
 import { useState } from 'react';
+import { addContact } from '../../redux/contacts/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllContacts } from '../../redux/contacts/contacts-selectors';
 
 import css from './contactForm.module.css';
 
-const ContactForm = ({ saveContact }) => {
+const ContactForm = () => {
   const [formData, setFormData] = useState({ name: '', number: '' });
+  const contacts = useSelector(getAllContacts);
+  const dispatch = useDispatch();
 
+  ////
+  const regExpPattern = {
+    name: new RegExp(
+      "^[a-zA-Zа-яА-Я]+(([' \\-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+    ),
+    number: new RegExp(
+      '\\+?\\d{1,4}?[ .\\-\\s]?\\(?\\d{1,3}?\\)?[ .\\-\\s]?\\d{1,4}[ .\\-\\s]?\\d{1,4}[ .\\-\\s]?\\d{1,9}'
+    ),
+  };
+
+  const saveContact = e => {
+    e.preventDefault();
+    // перевірка на коректність введених даних
+    if (regExpPattern.name.test(name) && regExpPattern.number.test(number)) {
+      // перевірка на наявність контакту по номеру
+      if (!contacts.some(contact => contact.number === number)) {
+        dispatch(addContact(formData));
+        setFormData({
+          name: '',
+          number: '',
+        });
+      } else {
+        alert('Такий контакт вже існує');
+        return;
+      }
+    } else {
+      alert('Введені дані некоректні');
+      return;
+    }
+  };
+
+  ////
   const handleInput = e => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    saveContact(formData);
-    setFormData({
-      name: '',
-      number: '',
-    });
-  };
-
   const { name, number } = formData;
   return (
-    <form className={css.save_form} onSubmit={handleSubmit}>
+    <form className={css.save_form} onSubmit={saveContact}>
       <div className="mb-3">
         <label htmlFor="exampleInputName1" className="form-label">
           Name
