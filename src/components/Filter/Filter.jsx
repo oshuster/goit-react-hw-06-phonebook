@@ -1,9 +1,12 @@
+import { useDispatch } from 'react-redux';
 import css from './filter.module.css';
+import { setFilter } from '../../redux/filter/filter-actions';
 
-const Filter = ({ filterKey }) => {
-  const filterValue = e => {
+const Filter = () => {
+  const dispatch = useDispatch();
+  const saveFilter = e => {
     const key = e.target.value.toLowerCase().trim();
-    filterKey(key);
+    dispatch(setFilter(key));
   };
 
   return (
@@ -12,7 +15,7 @@ const Filter = ({ filterKey }) => {
       type="search"
       placeholder="Search"
       aria-label="Search"
-      onChange={filterValue}
+      onChange={saveFilter}
     />
   );
 };
